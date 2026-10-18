@@ -1,5 +1,5 @@
-SQUID_SPRITE = 90
-SQUID_SPRITE_2 = 92
+SQUID_SPRITE = 192
+SQUID_SPRITE_2 = 194
 SQUID_FPS = 2
 SQUID_HP = 20
 SQUID_SPEED = 0.5
@@ -10,8 +10,8 @@ function squid_new(tx, ty, kill_flag)
     return {
         body = body_new(tx * 8, ty * 8, true),
         hurtbox = hurtbox_new("enemy", SQUID_HP, -3, -7, 14, 7),
-        hitbox = hitbox_new("player", 1, 2, -6, 4, 12),
-        facing = 1,
+        hitbox = hitbox_new("player", 2, 2, -6, 4, 12),
+        facing = -1,
         big_sprite = SQUID_SPRITE,
         update = squid_update,
         die = function(self)

@@ -18,11 +18,13 @@ PLAYER_ATTACK_COOLDOWN_DURATION = 0.25
 PLAYER_PICKAXE_WINDUP_DURATION = 0.25
 PLAYER_PICKAXE_BLUR_DURATION = 0.125
 PLAYER_CHARGE_DURATION = 1
+PLAYER_WALK_SPEED = 0.9
 
 function player_max_hp()
     local heart = state_flags[STATE_FLAG_HEART] and 1 or 0
     local red_heart = state_flags[STATE_FLAG_RED_HEART] and 1 or 0
-    return PLAYER_BASE_HP + heart + red_heart
+    local green_heart = state_flags[STATE_FLAG_GREEN_HEART] and 1 or 0
+    return PLAYER_BASE_HP + heart + red_heart + green_heart
 end
 
 function player_attack_bonus()
@@ -58,7 +60,8 @@ function player_update(self)
     self.action_button_down = btn(5)
 
     tick_down(self, "cooldown_timer")
-    self.color = state_flags[STATE_FLAG_GREEN_SWORD] and 11
+
+    self.color = state_flags[STATE_FLAG_GREEN_SWORD] and 15
             or state_flags[STATE_FLAG_RED_SWORD] and 8
             or 12
 
@@ -132,7 +135,7 @@ function player_update(self)
             self.old_facing = self.facing
             self.charge_timer = nil
         else
-            self.body.vx = dx or 0
+            self.body.vx = (dx or 0) * PLAYER_WALK_SPEED
             self.body.vy = jump and -PLAYER_JUMP_SPEED or self.body.vy
             self.sprite = (dx or not grounded) and alternate(PLAYER_SPRITE_WALK, PLAYER_SPRITE, PLAYER_FPS) or PLAYER_SPRITE
             self.facing = dx ~= 0 and dx or self.facing

@@ -6,6 +6,7 @@ RED_HEART_PICKUP_SPRITE = 53
 RED_SWORD_PICKUP_SPRITE = 54
 MAGIC_WAND_PICKUP_SPRITE = 57
 GREEN_SWORD_PICKUP_SPRITE = 55
+GREEN_HEART_PICKUP_SPRITE = 56
 
 PICKUP_TEXT_BOX_CONTENT = {
     sword = {
@@ -13,7 +14,7 @@ PICKUP_TEXT_BOX_CONTENT = {
         "pRESS \151 TO ATTACK"
     },
     heart = {
-        "fOUND bLUE hEART!",
+        "fOUND 1ST hEART!",
         "\135 INCREASED"
     },
     pickaxe = {
@@ -30,7 +31,7 @@ PICKUP_TEXT_BOX_CONTENT = {
         "ON IT"
     },
     red_heart = {
-        "fOUND rED hEART!",
+        "fOUND 2ND hEART!",
         "\135 INCREASED"
     },
     red_sword = {
@@ -39,17 +40,22 @@ PICKUP_TEXT_BOX_CONTENT = {
         "THE BLUE SWORD"
     },
     magic_wand = {
-        "pLUNDERED bABEL'S",
-        "mAGIC wAND!",
+        "pLUNDERED the mAGIC wAND",
+        "FROM THE wISE mEN of bABEL!",
         "aFTER ATTACKING, HOLD",
         "\151 TO CHARGE, THEN",
         "RELEASE TO CAST A",
         "SPELL"
     },
     green_sword = {
-        "fOUND gREEN sWORD!",
+        "pLUNDERED tYRFING'S",
+        "hATEFUL sWORD!",
         "tHE STRONGEST SWORD",
         "OF ALL!"
+    },
+    green_heart = {
+        "fOUND 3RD hEART!",
+        "\135 INCREASED"
     }
 }
 
@@ -103,4 +109,8 @@ end
 
 function green_sword_pickup_new(tx, ty)
     return pickup_new(tx, ty, GREEN_SWORD_PICKUP_SPRITE, STATE_FLAG_GREEN_SWORD, "green_sword")
+end
+
+function green_heart_pickup_new(tx, ty)
+    return pickup_new(tx, ty, GREEN_HEART_PICKUP_SPRITE, STATE_FLAG_GREEN_HEART, "green_heart")
 end

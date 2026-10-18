@@ -12,18 +12,35 @@ SPAWN_DATA = {
     [RED_SWORD_PICKUP_SPRITE] = red_sword_pickup_new,
     [DEVIL_SPRITE] = devil_1_new,
     [DEVIL_SPRITE_2] = devil_2_new,
+    [DEVIL_SPRITE_CAST] = devil_3_new,
     [MAGIC_WAND_PICKUP_SPRITE] = magic_wand_pickup_new,
     [SQUID_SPRITE] = squid_1_new,
     [SNAKE_SPRITE] = snake_new,
-    [GREEN_SWORD_PICKUP_SPRITE] = green_sword_pickup_new
+    [SNAKE_SPRITE_2] = snake_new_no_turn,
+    [GREEN_SWORD_PICKUP_SPRITE] = green_sword_pickup_new,
+    [SWITCH_SPRITE] = switch_new,
+    [DEVIL_FIREBALL_SPRITE] = fireball_spawner_new,
+    [SWORDSMAN_SPRITE] = swordsman_new,
+    [JELLY_SPRITE] = jelly_new,
+    [GREEN_HEART_PICKUP_SPRITE] = green_heart_pickup_new
 }
 
 AREA_COLOR = {
     fomor = 13,
     fafnir = 4,
     babel = 9,
-    proteus = 2
+    proteus = 2,
+    tyrfing = 15
 }
+
+AREA_TILE_TO_NAME = {
+    [64] = "fomor",
+    [73] = "fafnir",
+    [120] = "proteus",
+    [94] = "tyrfing"
+}
+
+DEFAULT_AREA_NAME = "babel"
 
 -- Array[(constructor: Function, tx: Int, ty: Int)]
 ROOM_DATA = {}
@@ -31,10 +48,13 @@ ROOM_DATA = {}
 -- Map[room_key: String] = state_flag
 ROOM_CLEAR_FLAGS = {}
 
+-- Map[room_key: String] = state_flag
+ROOM_SWITCH_FLAGS = {}
+
 -- NOT IDEMPOTENT!
 function load_room_data()
     for room_x = 0, 128 / ROOM_WIDTH - 1 do
-        for room_y = 0, 64 / ROOM_HEIGHT - 1 do
+        for room_y = 0, 48 / ROOM_HEIGHT - 1 do
             local tx = room_x * ROOM_WIDTH
             local ty = room_y * ROOM_HEIGHT
             local key = tx .. "," .. ty
@@ -43,6 +63,7 @@ function load_room_data()
             for tx = tx, tx + ROOM_WIDTH - 1 do
                 for ty = ty, ty + ROOM_HEIGHT - 1 do
                     local tile = mget(tx, ty)
+
                     if tile == PLAYER_SPRITE then
                         saved_state_flags[STATE_FLAG_START_TX] = tx
                         saved_state_flags[STATE_FLAG_START_TY] = ty
@@ -51,6 +72,9 @@ function load_room_data()
                     elseif fget(tile, SKULL_BLOCK_BIT) then
                         STATE_FLAGS_LENGTH += 1
                         ROOM_CLEAR_FLAGS[key] = STATE_FLAGS_LENGTH
+                    elseif fget(tile, SWITCH_BLOCK_BIT) then
+                        STATE_FLAGS_LENGTH += 1
+                        ROOM_SWITCH_FLAGS[key] = STATE_FLAGS_LENGTH
                     elseif SPAWN_DATA[tile] then
                         add(ROOM_DATA[key], { SPAWN_DATA[tile], tx, ty })
                     end
@@ -68,11 +92,7 @@ function init_room(tx, ty)
     room_ty = ty
     rock_body = nil
     entities = { player }
-
-    area = first_tile == 64 and "fomor"
-            or first_tile == 73 and "fafnir"
-            or first_tile == 120 and "proteus"
-            or "babel"
+    area = AREA_TILE_TO_NAME[first_tile] or DEFAULT_AREA_NAME
 
     for spawn in all(ROOM_DATA[room_tx .. "," .. room_ty]) do
         local constructor, tx, ty = unpack(spawn)
@@ -132,6 +152,21 @@ function _private_load_map()
             for tx = tx, tx + ROOM_WIDTH - 1 do
                 for ty = ty, ty + ROOM_HEIGHT - 1 do
                     if fget(mget(tx, ty), SKULL_BLOCK_BIT) then
+                        mset(tx, ty, 0)
+                    end
+                end
+            end
+        end
+    end
+
+    -- remove switch blocks in activated rooms
+    for k, v in pairs(ROOM_SWITCH_FLAGS) do
+        local tx, ty = unpack(split(k, ","))
+
+        if state_flags[v] then
+            for tx = tx, tx + ROOM_WIDTH - 1 do
+                for ty = ty, ty + ROOM_HEIGHT - 1 do
+                    if fget(mget(tx, ty), SWITCH_BLOCK_BIT) then
                         mset(tx, ty, 0)
                     end
                 end

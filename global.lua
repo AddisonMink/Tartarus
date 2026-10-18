@@ -1,6 +1,7 @@
 LADDER_BIT = 2
 SKULL_BLOCK_BIT = 3
 CRACKED_BLOCK_BIT = 6
+SWITCH_BLOCK_BIT = 7
 SPIKE_BIT = 4
 ROOM_WIDTH = 14
 ROOM_HEIGHT = 8
@@ -18,12 +19,14 @@ STATE_FLAG_GIANT_DEAD = 9
 STATE_FLAG_DRAGON_DEAD = 10
 STATE_FLAG_DEVIL_1_DEAD = 11
 STATE_FLAG_DEVIL_2_DEAD = 12
-STATE_FLAG_MAGIC_WAND = 13
-STATE_FLAG_SQUID_1 = 14
-STATE_FLAG_GREEN_SWORD = 15
-STATE_FLAGS_LENGTH = 15
+STATE_FLAG_DEVIL_3_DEAD = 13
+STATE_FLAG_MAGIC_WAND = 14
+STATE_FLAG_SQUID_1 = 15
+STATE_FLAG_GREEN_SWORD = 16
+STATE_FLAG_GREEN_HEART = 17
+STATE_FLAGS_LENGTH = 17
 
--- when map data is loaded for the first time, new flags will be added to keep track of skull blocks.
+-- when map data is loaded for the first time, new flags will be added to keep track of skull blocks and switch blocks.
 
 state = "play"
 player_start_tx = 0

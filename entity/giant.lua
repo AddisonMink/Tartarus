@@ -17,7 +17,6 @@ function giant_new(tx, ty)
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", GIANT_HP, -3, -7, 14, 7),
         hitbox = hitbox_new("player", 1, 2, -6, 4, 12),
-        sprite = GIANT_SPRITE,
         big_sprite = GIANT_SPRITE,
         facing = 1,
         timer = 0,
