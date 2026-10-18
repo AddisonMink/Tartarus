@@ -171,9 +171,8 @@ function player_update(self)
         self.body.vx = grounded and 0 or self.body.vx
 
         if self.attack_timer <= 0 then
-            local power = 1 + player_attack_bonus()
             self.state = "pickaxe"
-            self.hitbox = hitbox_new("enemy", power, self.facing < 0 and -6 or 2, -4, 12, 15)
+            self.hitbox = hitbox_new("enemy", 1, self.facing < 0 and -6 or 2, -4, 12, 15)
             self.sprite = PLAYER_SPRITE_ATTACK
             self.attack_timer = PLAYER_ATTACK_DURATION
             self.blur_timer = PLAYER_PICKAXE_BLUR_DURATION
