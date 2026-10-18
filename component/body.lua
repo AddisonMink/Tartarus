@@ -11,6 +11,19 @@ function body_tile_coords(body)
     return tile_coords(body.x + 4, body.y + 4)
 end
 
+function body_intersects_tile(body, tx, ty)
+    local tx1 = tx * 8
+    local ty1 = ty * 8
+    local bx1 = body.x
+    local by1 = body.y
+    local bx2 = body.x + 6
+    local by2 = body.y + 7
+    local tx2 = tx1 + 7
+    local ty2 = ty1 + 7
+
+    return bx1 <= tx2 and bx2 >= tx1 and by1 <= ty2 and by2 >= ty1
+end
+
 function body_on_same_tile(body1, body2)
     local tx1, ty1 = body_tile_coords(body1)
     local tx2, ty2 = body_tile_coords(body2)
@@ -18,7 +31,7 @@ function body_on_same_tile(body1, body2)
 end
 
 function body_contains_point(body, x, y)
-    return x >= body.x 
+    return x >= body.x
             and x < body.x + 7
             and y >= body.y
             and y < body.y + 7

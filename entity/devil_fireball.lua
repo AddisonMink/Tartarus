@@ -8,8 +8,9 @@ function devil_fireball_new(x, y)
         body = body_new(x, y, true),
         hurtbox = hurtbox_new("enemy", 1, 0, 0, 8, 8),
         hitbox = hitbox_new("player", 1, 2, 2, 4, 4),
+        color = AREA_COLOR[area],
         update = devil_fireball_update,
-        sprite = DEVIL_FIREBALL_SPRITE
+        sprite = DEVIL_FIREBALL_SPRITE,
     }
 end
 

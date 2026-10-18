@@ -12,18 +12,41 @@ SPAWN_DATA = {
     [RED_SWORD_PICKUP_SPRITE] = red_sword_pickup_new,
     [DEVIL_SPRITE] = devil_1_new,
     [DEVIL_SPRITE_2] = devil_2_new,
+    [DEVIL_SPRITE_CAST] = devil_3_new,
     [MAGIC_WAND_PICKUP_SPRITE] = magic_wand_pickup_new,
     [SQUID_SPRITE] = squid_1_new,
     [SNAKE_SPRITE] = snake_new,
-    [GREEN_SWORD_PICKUP_SPRITE] = green_sword_pickup_new
+    [SNAKE_SPRITE_2] = snake_new_no_turn,
+    [GREEN_SWORD_PICKUP_SPRITE] = green_sword_pickup_new,
+    [SWITCH_SPRITE] = switch_new,
+    [DEVIL_FIREBALL_SPRITE] = fireball_spawner_new,
+    [SWORDSMAN_SPRITE] = swordsman_new,
+    [JELLY_SPRITE] = jelly_new,
+    [GREEN_HEART_PICKUP_SPRITE] = green_heart_pickup_new,
+    [DEVIL_BLOCK_SPRITE_1] = devil_block_1_new,
+    [DEVIL_BLOCK_SPRITE_2] = devil_block_2_new,
+    [DEVIL_BLOCK_SPRITE_3] = devil_block_3_new,
+    [TYPHON_SPRITE] = typhon_new
 }
 
 AREA_COLOR = {
     fomor = 13,
     fafnir = 4,
     babel = 9,
-    proteus = 2
+    proteus = 2,
+    tyrfing = 15,
+    typhon = 8
 }
+
+AREA_TILE_TO_NAME = {
+    [64] = "fomor",
+    [73] = "fafnir",
+    [94] = "tyrfing",
+    [236] = "proteus",
+    [124] = "typhon"
+}
+
+DEFAULT_AREA_NAME = "babel"
 
 -- Array[(constructor: Function, tx: Int, ty: Int)]
 ROOM_DATA = {}
@@ -31,10 +54,13 @@ ROOM_DATA = {}
 -- Map[room_key: String] = state_flag
 ROOM_CLEAR_FLAGS = {}
 
+-- Map[room_key: String] = state_flag
+ROOM_SWITCH_FLAGS = {}
+
 -- NOT IDEMPOTENT!
 function load_room_data()
     for room_x = 0, 128 / ROOM_WIDTH - 1 do
-        for room_y = 0, 64 / ROOM_HEIGHT - 1 do
+        for room_y = 0, 40 / ROOM_HEIGHT - 1 do
             local tx = room_x * ROOM_WIDTH
             local ty = room_y * ROOM_HEIGHT
             local key = tx .. "," .. ty
@@ -43,14 +69,16 @@ function load_room_data()
             for tx = tx, tx + ROOM_WIDTH - 1 do
                 for ty = ty, ty + ROOM_HEIGHT - 1 do
                     local tile = mget(tx, ty)
+
                     if tile == PLAYER_SPRITE then
-                        saved_state_flags[STATE_FLAG_START_TX] = tx
-                        saved_state_flags[STATE_FLAG_START_TY] = ty
-                        player_start_tx = tx
-                        player_start_ty = ty
+                        global_start_tx = tx
+                        global_start_ty = ty
                     elseif fget(tile, SKULL_BLOCK_BIT) then
                         STATE_FLAGS_LENGTH += 1
                         ROOM_CLEAR_FLAGS[key] = STATE_FLAGS_LENGTH
+                    elseif fget(tile, SWITCH_BLOCK_BIT) then
+                        STATE_FLAGS_LENGTH += 1
+                        ROOM_SWITCH_FLAGS[key] = STATE_FLAGS_LENGTH
                     elseif SPAWN_DATA[tile] then
                         add(ROOM_DATA[key], { SPAWN_DATA[tile], tx, ty })
                     end
@@ -62,17 +90,14 @@ end
 
 function init_room(tx, ty)
     _private_load_map()
+    mset(global_start_tx, global_start_ty, 0)
     local first_tile = mget(tx, ty)
 
     room_tx = tx
     room_ty = ty
     rock_body = nil
     entities = { player }
-
-    area = first_tile == 64 and "fomor"
-            or first_tile == 73 and "fafnir"
-            or first_tile == 120 and "proteus"
-            or "babel"
+    area = AREA_TILE_TO_NAME[first_tile] or DEFAULT_AREA_NAME
 
     for spawn in all(ROOM_DATA[room_tx .. "," .. room_ty]) do
         local constructor, tx, ty = unpack(spawn)
@@ -86,29 +111,46 @@ function init_room(tx, ty)
     end
 end
 
-function load_game()
-    -- load saved state flags
+function new_game()
     for i = 1, STATE_FLAGS_LENGTH do
-        state_flags[i] = saved_state_flags[i]
+        dset(i, 0)
     end
 
-    _private_load_map()
+    state_flags = {}
+    dset(STATE_FLAG_START_TX, global_start_tx)
+    dset(STATE_FLAG_START_TY, global_start_ty)
+end
 
-    local start_tx = state_flags[STATE_FLAG_START_TX]
-    local start_ty = state_flags[STATE_FLAG_START_TY]
+function load_game(state_flag_overrides)
+    state_flag_overrides = state_flag_overrides or {}
+    -- load saved state flags
+    state_flags[STATE_FLAG_START_TX] = dget(STATE_FLAG_START_TX)
+    state_flags[STATE_FLAG_START_TY] = dget(STATE_FLAG_START_TY)
+    for i = 3, STATE_FLAGS_LENGTH do
+        local saved_value = dget(i) == 1
+        local override_value = state_flag_overrides[i]
 
-    mset(player_start_tx, player_start_ty, 0)
-    player = player_new(start_tx, start_ty)
+        if override_value ~= nil then
+            saved_value = override_value == 1
+        end
+
+        state_flags[i] = saved_value
+    end
+
+    player = player_new(state_flags[STATE_FLAG_START_TX], state_flags[STATE_FLAG_START_TY])
     init_room(0, 0)
 end
 
 function save_game(start_tx, start_ty)
-    for i = 1, STATE_FLAGS_LENGTH do
-        saved_state_flags[i] = state_flags[i]
+    state_flags[STATE_FLAG_START_TX] = start_tx
+    state_flags[STATE_FLAG_START_TY] = start_ty
+    dset(STATE_FLAG_START_TX, state_flags[STATE_FLAG_START_TX])
+    dset(STATE_FLAG_START_TY, state_flags[STATE_FLAG_START_TY])
+
+    for i = 3, STATE_FLAGS_LENGTH do
+        dset(i, state_flags[i] and 1 or 0)
     end
 
-    saved_state_flags[STATE_FLAG_START_TX] = start_tx
-    saved_state_flags[STATE_FLAG_START_TY] = start_ty
     player.hurtbox.hp = player_max_hp()
 end
 
@@ -139,5 +181,18 @@ function _private_load_map()
         end
     end
 
-    mset(player_start_tx, player_start_ty, 0)
+    -- remove switch blocks in activated rooms
+    for k, v in pairs(ROOM_SWITCH_FLAGS) do
+        local tx, ty = unpack(split(k, ","))
+
+        if state_flags[v] then
+            for tx = tx, tx + ROOM_WIDTH - 1 do
+                for ty = ty, ty + ROOM_HEIGHT - 1 do
+                    if fget(mget(tx, ty), SWITCH_BLOCK_BIT) then
+                        mset(tx, ty, 0)
+                    end
+                end
+            end
+        end
+    end
 end

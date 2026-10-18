@@ -4,9 +4,10 @@ DRAGON_FIRE_SPEED = 2
 function dragon_fire_new(x, y, facing)
     return {
         body = body_new(x, y),
-        hitbox = hitbox_new("player", 1, 2, 2, 4, 4),
+        hitbox = hitbox_new("player", 2, 2, 2, 4, 4),
         sprite = DRAGON_FIRE_SPRITE,
         facing = facing,
+        color = AREA_COLOR[area],
         update = dragon_fire_update
     }
 end

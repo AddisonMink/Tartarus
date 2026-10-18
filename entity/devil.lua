@@ -62,3 +62,7 @@ end
 function devil_2_new(tx, ty)
     return devil_new(tx, ty, STATE_FLAG_DEVIL_2_DEAD)
 end
+
+function devil_3_new(tx, ty)
+    return devil_new(tx, ty, STATE_FLAG_DEVIL_3_DEAD)
+end

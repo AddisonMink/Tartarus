@@ -10,7 +10,7 @@ function fireball_new(x, y, facing)
         hitbox = hitbox_new("enemy", 1 + player_attack_bonus(), 2, 2, 4, 4),
         facing = facing,
         sprite = FIREBALL_SPRITE,
-        color = state_flags[STATE_FLAG_RED_SWORD] and 8,
+        color = state_flags[STATE_FLAG_GREEN_SWORD] and 15 or state_flags[STATE_FLAG_RED_SWORD] and 8,
         timer = FIREBALL_DURATION,
         x_vel = 0.5 * facing,
         update = fireball_update

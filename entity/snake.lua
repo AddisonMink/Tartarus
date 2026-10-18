@@ -1,12 +1,12 @@
-SNAKE_SPRITE = 192
-SNAKE_SPRITE_2 = 193
+SNAKE_SPRITE = 196
+SNAKE_SPRITE_2 = 197
 SNAKE_FPS = 2
 SNAKE_SPEED = 0.5
 SNAKE_BREATH_INTERVAL = 2
 SNAKE_BREATH_DURATION = 0.5
 SNAKE_HP = 3
 
-function snake_new(tx, ty)
+function snake_new_base(tx, ty, turn)
     return {
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", SNAKE_HP, 1, 1, 6, 6),
@@ -15,6 +15,7 @@ function snake_new(tx, ty)
         facing = 1,
         timer = SNAKE_BREATH_INTERVAL,
         state = "walk",
+        turn = turn,
         update = snake_update
     }
 end
@@ -34,10 +35,14 @@ function snake_update(self)
             self.sprite = alternate(SNAKE_SPRITE_2, SNAKE_SPRITE, SNAKE_FPS)
 
             if turn then
-                self.facing = -self.facing
+                if self.turn then
+                    self.facing = -self.facing
+                else
+                    self.body.vx = 0
+                end
+            else
+                self.body.vx = self.facing * SNAKE_SPEED
             end
-
-            self.body.vx = self.facing * SNAKE_SPEED
         end
     elseif self.state == "breath" then
         if self.timer <= 0 then
@@ -46,4 +51,12 @@ function snake_update(self)
             add(entities, dragon_fire_new(self.body.x, self.body.y, self.facing))
         end
     end
+end
+
+function snake_new(tx, ty)
+    return snake_new_base(tx, ty, true)
+end
+
+function snake_new_no_turn(tx, ty)
+    return snake_new_base(tx, ty, false)
 end

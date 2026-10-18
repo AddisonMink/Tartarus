@@ -4,7 +4,7 @@ BOTTOM_PANE_OFFSET_Y = ROOM_HEIGHT * 8 + 8
 BOTTOM_PANE_HEIGHT = 40
 INVINCIBLE_FLASH_FPS = 12
 INVENTORY_ROWS = 2
-INVENTORY_COLS = 4
+INVENTORY_COLS = 5
 
 INVENTORY_FLAGS = {
     STATE_FLAG_SWORD,
@@ -12,9 +12,11 @@ INVENTORY_FLAGS = {
     STATE_FLAG_GREEN_SWORD,
     STATE_FLAG_HEART,
     STATE_FLAG_RED_HEART,
+    STATE_FLAG_GREEN_HEART,
     STATE_FLAG_MAGIC_STONE,
     STATE_FLAG_PICKAXE,
-    STATE_FLAG_MAGIC_WAND
+    STATE_FLAG_MAGIC_WAND,
+    STATE_FLAG_BRAIN,
 }
 
 INVENTORY_SPRITES = {
@@ -25,7 +27,9 @@ INVENTORY_SPRITES = {
     [STATE_FLAG_RED_HEART] = RED_HEART_PICKUP_SPRITE,
     [STATE_FLAG_MAGIC_STONE] = MAGIC_STONE_PICKUP_SPRITE,
     [STATE_FLAG_PICKAXE] = PICKAXE_PICKUP_SPRITE,
-    [STATE_FLAG_MAGIC_WAND] = MAGIC_WAND_PICKUP_SPRITE
+    [STATE_FLAG_MAGIC_WAND] = MAGIC_WAND_PICKUP_SPRITE,
+    [STATE_FLAG_BRAIN] = BRAIN_PICKUP_SPRITE,
+    [STATE_FLAG_GREEN_HEART] = GREEN_HEART_PICKUP_SPRITE
 }
 
 function draw_system_run()
@@ -107,7 +111,7 @@ function _private_draw_entity(e)
     --    local x2 = x + e.hitbox.w
     --    local y = e.hitbox.y + e.body.y
     --    local y2 = y + e.hitbox.h
-    --    rect(x, y, x2, y2, 8)
+    --    rect(x, y, x2, y2, 7)
     --end
 
     --if e.hurtbox then
@@ -143,7 +147,7 @@ function _private_draw_inventory()
     for r = 1, INVENTORY_ROWS do
         for c = 1, INVENTORY_COLS do
             local i = (r - 1) * INVENTORY_COLS + c
-            local x = room_tx * 8 + (c - 1) * 16 + 26 - 1
+            local x = room_tx * 8 + (c - 1) * 16 + 20 - 1
             local y = room_ty * 8 + BOTTOM_PANE_OFFSET_Y + (r - 1) * 16 + 8 - 1
             local flag = INVENTORY_FLAGS[i]
             local sprite = state_flags[flag] and INVENTORY_SPRITES[flag]
