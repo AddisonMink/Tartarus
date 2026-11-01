@@ -41,4 +41,5 @@ function _private_apply_hitbox(e, e2)
     e2.hurtbox.hp -= e.hitbox.damage
     e2.hurtbox.just_hit_timer = JUST_HIT_DURATION
     e2.hurtbox.invincible_timer = INVINCIBLE_DURATION
+    sfx(4)
 end

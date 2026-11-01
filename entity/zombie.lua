@@ -5,25 +5,27 @@ ZOMBIE_SPEED = 0.5
 ZOMBIE_HP = 3
 
 function zombie_new(tx, ty)
-    return {
+    local e = {
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", ZOMBIE_HP, 1, 1, 6, 6),
         hitbox = hitbox_new("player", 1, 2, 2, 4, 4),
         sprite = ZOMBIE_SPRITE,
-        facing = 1,
-        update = zombie_update
+        facing = 1
     }
-end
 
-function zombie_update(self)
-    local turn = body_would_collides(self.body, self.facing, 0)
-            or not body_would_collides(self.body, self.facing * 8, 1)
+    function e.update()
+        local body = e.body
+        local turn = body_would_collides(body, e.facing, 0)
+                or not body_would_collides(body, e.facing * 8, 1)
 
-    self.sprite = alternate(ZOMBIE_SPRITE_WALK, ZOMBIE_SPRITE, ZOMBIE_FPS)
+        e.sprite = alternate(ZOMBIE_SPRITE_WALK, ZOMBIE_SPRITE, ZOMBIE_FPS)
 
-    if turn then
-        self.facing = -self.facing
+        if turn then
+            e.facing = -e.facing
+        end
+
+        body.vx = e.facing * ZOMBIE_SPEED
     end
 
-    self.body.vx = self.facing * ZOMBIE_SPEED
+    return e
 end

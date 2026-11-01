@@ -7,22 +7,21 @@ function switch_new(tx, ty)
     local switch_flag = ROOM_SWITCH_FLAGS[room_key]
     if state_flags[switch_flag] then return end
 
-    return {
+    local e = {
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", 1, 1, 1, 6, 6),
-        sprite = SWITCH_SPRITE,
-        switch_flag = switch_flag,
-        update = switch_update,
-        die = switch_die
+        sprite = SWITCH_SPRITE
     }
-end
 
-function switch_update(self)
-    self.sprite = alternate(SWITCH_SPRITE, SWITCH_SPRITE_2, SWITCH_FPS)
-end
-
-function switch_die(self)
-    if self.switch_flag then
-        state_flags[self.switch_flag] = true
+    function e.update()
+        e.sprite = alternate(SWITCH_SPRITE, SWITCH_SPRITE_2, SWITCH_FPS)
     end
+
+    function e.die()
+        if switch_flag then
+            state_flags[switch_flag] = true
+        end
+    end
+
+    return e
 end

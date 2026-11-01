@@ -7,50 +7,51 @@ SNAKE_BREATH_DURATION = 0.5
 SNAKE_HP = 3
 
 function snake_new_base(tx, ty, turn)
-    return {
+    local state = "walk"
+    local timer = SNAKE_BREATH_INTERVAL
+    local e = {
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", SNAKE_HP, 1, 1, 6, 6),
         hitbox = hitbox_new("player", 1, 2, 2, 4, 4),
         sprite = SNAKE_SPRITE,
-        facing = 1,
-        timer = SNAKE_BREATH_INTERVAL,
-        state = "walk",
-        turn = turn,
-        update = snake_update
+        facing = 1
     }
-end
 
-function snake_update(self)
-    tick_down(self, "timer")
+    function e.update()
+        local body = e.body
+        timer = max(0, timer - 1 / 30)
 
-    if self.state == "walk" then
-        if self.timer <= 0 then
-            self.state = "breath"
-            self.timer = SNAKE_BREATH_DURATION
-            self.body.vx = 0
-        else
-            local turn = body_would_collides(self.body, self.facing, 0)
-                    or not body_would_collides(self.body, self.facing * 8, 1)
-
-            self.sprite = alternate(SNAKE_SPRITE_2, SNAKE_SPRITE, SNAKE_FPS)
-
-            if turn then
-                if self.turn then
-                    self.facing = -self.facing
-                else
-                    self.body.vx = 0
-                end
+        if state == "walk" then
+            if timer <= 0 then
+                state = "breath"
+                timer = SNAKE_BREATH_DURATION
+                body.vx = 0
             else
-                self.body.vx = self.facing * SNAKE_SPEED
+                local should_turn = body_would_collides(body, e.facing, 0)
+                        or not body_would_collides(body, e.facing * 8, 1)
+
+                e.sprite = alternate(SNAKE_SPRITE_2, SNAKE_SPRITE, SNAKE_FPS)
+
+                if should_turn then
+                    if turn then
+                        e.facing = -e.facing
+                    else
+                        body.vx = 0
+                    end
+                else
+                    body.vx = e.facing * SNAKE_SPEED
+                end
+            end
+        elseif state == "breath" then
+            if timer <= 0 then
+                state = "walk"
+                timer = SNAKE_BREATH_INTERVAL
+                add(entities, dragon_fire_new(body.x, body.y, e.facing))
             end
         end
-    elseif self.state == "breath" then
-        if self.timer <= 0 then
-            self.state = "walk"
-            self.timer = SNAKE_BREATH_INTERVAL
-            add(entities, dragon_fire_new(self.body.x, self.body.y, self.facing))
-        end
     end
+
+    return e
 end
 
 function snake_new(tx, ty)

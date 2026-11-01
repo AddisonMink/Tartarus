@@ -132,7 +132,7 @@ function _private_draw_text_box()
     end
 
     local x = room_tx * 8 + ROOM_WIDTH * 4 - max_width / 2
-    local y = room_ty * 8 + ROOM_HEIGHT * 4 - (#text_box_content * 4)
+    local y = room_ty * 8 + ROOM_HEIGHT * 4 - (#text_box_content * 4) + 2
 
     rectfill(x - 4, y - 4, x + max_width + 4, y + #text_box_content * 8, 0)
     rect(x - 4, y - 4, x + max_width + 4, y + #text_box_content * 8, 12)

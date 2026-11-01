@@ -9,17 +9,20 @@ function devil_block_new(tx, ty, flag)
 
     mset(tx, ty, DEVIL_BLOCK_SPRITE_1)
 
-    return {
+    local e = {
         body = body_new(x, y),
-        sprite = DEVIL_BLOCK_SPRITE_1,
-        update = function(self)
-            if state_flags[flag] then
-                mset(tx, ty, 0)
-                del(entities, self)
-                add(entities, poof_new(x, y))
-            end
-        end
+        sprite = DEVIL_BLOCK_SPRITE_1
     }
+
+    function e.update()
+        if state_flags[flag] then
+            mset(tx, ty, 0)
+            del(entities, e)
+            add(entities, poof_new(x, y))
+        end
+    end
+
+    return e
 end
 
 function devil_block_1_new(tx, ty)

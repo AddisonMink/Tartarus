@@ -38,6 +38,14 @@ AREA_COLOR = {
     typhon = 8
 }
 
+AREA_MUSIC = {
+    fomor = 8,
+    fafnir = 12,
+    tyrfing = 5,
+    babel = 3,
+    proteus = 15
+}
+
 AREA_TILE_TO_NAME = {
     [64] = "fomor",
     [73] = "fafnir",
@@ -92,12 +100,16 @@ function init_room(tx, ty)
     _private_load_map()
     mset(global_start_tx, global_start_ty, 0)
     local first_tile = mget(tx, ty)
+    local old_area = area
 
     room_tx = tx
     room_ty = ty
     rock_body = nil
     entities = { player }
     area = AREA_TILE_TO_NAME[first_tile] or DEFAULT_AREA_NAME
+    if area ~= old_area then
+        music(AREA_MUSIC[area] or -1)
+    end
 
     for spawn in all(ROOM_DATA[room_tx .. "," .. room_ty]) do
         local constructor, tx, ty = unpack(spawn)

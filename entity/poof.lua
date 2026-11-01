@@ -3,22 +3,24 @@ POOF_SPRITE_2 = 9
 POOF_DURATION = 0.25
 
 function poof_new(x, y)
-    return {
+    sfx(3)
+    local timer = POOF_DURATION
+    local e = {
         body = body_new(x, y, true),
-        sprite = POOF_SPRITE,
-        timer = POOF_DURATION,
-        update = poof_update
+        sprite = POOF_SPRITE
     }
-end
 
-function poof_update(self)
-    tick_down(self, "timer")
+    function e.update()
+        timer = max(0, timer - 1 / 30)
 
-    if self.timer < POOF_DURATION / 2 then
-        self.sprite = POOF_SPRITE_2
+        if timer < POOF_DURATION / 2 then
+            e.sprite = POOF_SPRITE_2
+        end
+
+        if timer <= 0 then
+            del(entities, e)
+        end
     end
 
-    if self.timer <= 0 then
-        del(entities, self)
-    end
+    return e
 end

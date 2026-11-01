@@ -66,24 +66,26 @@ PICKUP_TEXT_BOX_CONTENT = {
     }
 }
 
-function pickup_new(tx, ty, sprite, flag, content_key)
+function pickup_new(tx, ty, sprite, flag, content_key, action)
     if state_flags[flag] then return end
 
-    return {
+    local e = {
         body = body_new(tx * 8, ty * 8),
-        sprite = sprite,
-        flag = flag,
-        content_key = content_key,
-        update = pickup_update
+        sprite = sprite
     }
-end
 
-function pickup_update(self)
-    if body_on_same_tile(self.body, player.body) then
-        state_flags[self.flag] = true
-        del(entities, self)
-        text_box_content = PICKUP_TEXT_BOX_CONTENT[self.content_key]
+    function e.update()
+        if body_on_same_tile(e.body, player.body) then
+            state_flags[flag] = true
+            del(entities, e)
+            text_box_content = PICKUP_TEXT_BOX_CONTENT[content_key]
+            if action then action() end
+            --music(2)
+            sfx(5)
+        end
     end
+
+    return e
 end
 
 function sword_pickup_new(tx, ty)
@@ -91,7 +93,12 @@ function sword_pickup_new(tx, ty)
 end
 
 function heart_pickup_new(tx, ty)
-    return pickup_new(tx, ty, HEART_PICKUP_SPRITE, STATE_FLAG_HEART, "heart")
+    return pickup_new(
+        tx, ty, HEART_PICKUP_SPRITE, STATE_FLAG_HEART, "heart",
+        function()
+            player.hurtbox.hp = player_max_hp()
+        end
+    )
 end
 
 function pickaxe_pickup_new(tx, ty)
@@ -103,7 +110,12 @@ function magic_stone_pickup_new(tx, ty)
 end
 
 function red_heart_pickup_new(tx, ty)
-    return pickup_new(tx, ty, RED_HEART_PICKUP_SPRITE, STATE_FLAG_RED_HEART, "red_heart")
+    return pickup_new(
+        tx, ty, RED_HEART_PICKUP_SPRITE, STATE_FLAG_RED_HEART, "red_heart",
+        function()
+            player.hurtbox.hp = player_max_hp()
+        end
+    )
 end
 
 function red_sword_pickup_new(tx, ty)
@@ -119,5 +131,19 @@ function green_sword_pickup_new(tx, ty)
 end
 
 function green_heart_pickup_new(tx, ty)
-    return pickup_new(tx, ty, GREEN_HEART_PICKUP_SPRITE, STATE_FLAG_GREEN_HEART, "green_heart")
+    return pickup_new(
+        tx, ty, GREEN_HEART_PICKUP_SPRITE, STATE_FLAG_GREEN_HEART, "green_heart",
+        function()
+            player.hurtbox.hp = player_max_hp()
+        end
+    )
+end
+
+function brain_pickup_new(tx, ty)
+    return pickup_new(
+        tx, ty, BRAIN_PICKUP_SPRITE, STATE_FLAG_BRAIN, "brain",
+        function()
+            player.hurtbox.hp = player_max_hp()
+        end
+    )
 end

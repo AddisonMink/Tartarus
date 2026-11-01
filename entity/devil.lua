@@ -9,50 +9,52 @@ DEVIL_HP = 2
 
 function devil_new(tx, ty, kill_flag)
     if state_flags[kill_flag] then return end
-    return {
+    local state = "idle"
+    local timer = DEVIL_CAST_COOLDOWN - 2
+    local num_fireballs = 0
+    local e = {
         body = body_new(tx * 8, ty * 8),
         hurtbox = hurtbox_new("enemy", DEVIL_HP, -3, -7, 14, 7),
         big_sprite = DEVIL_SPRITE,
         color = 9,
-        facing = -1,
-        state = "idle",
-        timer = DEVIL_CAST_COOLDOWN - 2,
-        num_fireballs = 0,
-        update = devil_update,
-        die = function(self)
-            state_flags[kill_flag] = true
-        end
+        facing = -1
     }
-end
 
-function devil_update(self)
-    tick_down(self, "timer")
+    function e.update()
+        timer = max(0, timer - 1 / 30)
 
-    if self.state == "idle" then
-        if self.timer <= 0 then
-            self.state = "casting"
-            self.big_sprite = DEVIL_SPRITE_CAST
-            self.num_fireballs = 0
-        else
-            self.big_sprite = alternate(DEVIL_SPRITE, DEVIL_SPRITE_2, DEVIL_FPS)
-        end
-    elseif self.state == "casting" then
-        if self.timer <= 0 then
-            if self.num_fireballs < DEVIL_NUM_FIREBALLS then
-                local fireball_x = self.body.x + 4 + self.facing * 12
-                local fireball_y = self.body.y - 4
-
-                self.num_fireballs = self.num_fireballs + 1
-                self.timer = DEVIL_CAST_INTERVAL
-                add(entities, devil_fireball_new(fireball_x, fireball_y, self.facing))
+        if state == "idle" then
+            if timer <= 0 then
+                state = "casting"
+                e.big_sprite = DEVIL_SPRITE_CAST
+                num_fireballs = 0
             else
-                self.state = "idle"
-                self.timer = DEVIL_CAST_COOLDOWN
+                e.big_sprite = alternate(DEVIL_SPRITE, DEVIL_SPRITE_2, DEVIL_FPS)
             end
-        else
-            self.big_sprite = self.timer > DEVIL_CAST_INTERVAL / 2 and DEVIL_SPRITE_CAST or DEVIL_SPRITE
+        elseif state == "casting" then
+            if timer <= 0 then
+                if num_fireballs < DEVIL_NUM_FIREBALLS then
+                    local fireball_x = e.body.x + 4 + e.facing * 12
+                    local fireball_y = e.body.y - 4
+
+                    num_fireballs += 1
+                    timer = DEVIL_CAST_INTERVAL
+                    add(entities, devil_fireball_new(fireball_x, fireball_y, e.facing))
+                else
+                    state = "idle"
+                    timer = DEVIL_CAST_COOLDOWN
+                end
+            else
+                e.big_sprite = timer > DEVIL_CAST_INTERVAL / 2 and DEVIL_SPRITE_CAST or DEVIL_SPRITE
+            end
         end
     end
+
+    function e.die()
+        state_flags[kill_flag] = true
+    end
+
+    return e
 end
 
 function devil_1_new(tx, ty)
